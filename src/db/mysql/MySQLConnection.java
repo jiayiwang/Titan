@@ -227,11 +227,11 @@ public class MySQLConnection implements DBConnection {
 				return false;
 			}
 
-			String sql = "SELECT user_id from users WHERE user_id=? and password=?";
-			PreparedStatement pstmt = conn.prepareStatement( sql );
-			pstmt.setString( 1, userId); 
-			pstmt.setString( 2, password); 
-			ResultSet rs = pstmt.executeQuery();
+			String sql = "SELECT user_id from users WHERE user_id = ? and password = ?";
+			PreparedStatement statement = conn.prepareStatement(sql);
+			statement.setString(1, userId);
+			statement.setString(2, password);
+			ResultSet rs = statement.executeQuery();
 			if (rs.next()) {
 				return true;
 			}
@@ -239,26 +239,25 @@ public class MySQLConnection implements DBConnection {
 			System.out.println(e.getMessage());
 		}
 		return false;
-
 	}
 
 	@Override
 	public String getFirstLastName(String userId) {
-		String firstLastName = "";
+		String name = "";
 		try {
+			if (conn == null) {
+				return "";
+			}
 			String sql = "SELECT first_name, last_name from users WHERE user_id = ?";
 			PreparedStatement statement = conn.prepareStatement(sql);
 			statement.setString(1, userId);
 			ResultSet rs = statement.executeQuery();
-			while(rs.next()) {
-				String first_name = rs.getString("first_name");
-				firstLastName += first_name + " ";
-				String last_name = rs.getString("last_name");
-				firstLastName += last_name;
+			if (rs.next()) {
+				name += String.join(" ", rs.getString("first_name"), rs.getString("last_name"));
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
 		}
-		return firstLastName;
+		return name;
 	}
 }
